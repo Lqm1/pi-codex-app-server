@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "oneOf": [
+    {
+      "properties": {
+        "profile": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "profile"
+          ],
+          "title": "Profilev2::BedrockSetupParamsType",
+          "type": "string"
+        }
+      },
+      "required": [
+        "profile",
+        "region",
+        "type"
+      ],
+      "title": "Profilev2::BedrockSetupParams",
+      "type": "object"
+    },
+    {
+      "properties": {
+        "region": {
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "environment"
+          ],
+          "title": "Environmentv2::BedrockSetupParamsType",
+          "type": "string"
+        }
+      },
+      "required": [
+        "region",
+        "type"
+      ],
+      "title": "Environmentv2::BedrockSetupParams",
+      "type": "object"
+    },
+    {
+      "properties": {
+        "accessKeyId": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        },
+        "secretAccessKey": {
+          "type": "string"
+        },
+        "sessionToken": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "type": {
+          "enum": [
+            "accessKeys"
+          ],
+          "title": "AccessKeysv2::BedrockSetupParamsType",
+          "type": "string"
+        }
+      },
+      "required": [
+        "accessKeyId",
+        "region",
+        "secretAccessKey",
+        "type"
+      ],
+      "title": "AccessKeysv2::BedrockSetupParams",
+      "type": "object"
+    }
+  ],
+  "title": "BedrockSetupParams"
+}
