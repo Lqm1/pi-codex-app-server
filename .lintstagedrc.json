@@ -1,3 +1,5 @@
 {
-  "**/*.{js,jsx,ts,tsx}": ["bun x ultracite fix"]
+  "*.{js,jsx,ts,tsx,json,jsonc,css,scss,md,mdx}": [
+    "npx ultracite fix --no-error-on-unmatched-pattern"
+  ]
 }
