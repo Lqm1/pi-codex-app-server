@@ -1,6 +1,6 @@
 {
   "name": "pi-codex-app-server",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Expose Pi Coding Agent through the Codex App Server and ChatGPT Remote protocols.",
   "keywords": [
     "app-server",
