@@ -66,6 +66,7 @@ const defaultReasoningEffort = (
 
 const toCodexModel = (
   model: PiModel<string>,
+  providerDisplayName: string,
   defaultKey?: string
 ): CodexModel => {
   const key = modelKey(model);
@@ -76,7 +77,7 @@ const toCodexModel = (
     defaultReasoningEffort: defaultReasoningEffort(efforts),
     defaultServiceTier: null,
     description: `${model.provider} · ${model.api} · ${model.contextWindow.toLocaleString()} token context`,
-    displayName: model.name,
+    displayName: `[${providerDisplayName}] ${model.name}`,
     hidden: false,
     id: key,
     inputModalities: model.input,
@@ -115,7 +116,15 @@ export class PiModelCatalog {
     const page = models.slice(offset, offset + pageSize);
     const nextOffset = offset + page.length;
     return {
-      data: page.map((model) => toCodexModel(model, defaultKey)),
+      data: page.map((model) =>
+        toCodexModel(
+          model,
+          this.#modelRuntime.modelRegistry.getProviderDisplayName(
+            model.provider
+          ),
+          defaultKey
+        )
+      ),
       nextCursor:
         nextOffset < models.length ? `${CURSOR_PREFIX}${nextOffset}` : null,
     };

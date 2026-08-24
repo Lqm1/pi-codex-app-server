@@ -18,7 +18,9 @@ const temporaryDirectories: string[] = [];
 const modelListResponseSchema = z.object({
   id: z.number().int().min(2).max(4),
   result: z.object({
-    data: z.array(z.object({ id: z.string() }).passthrough()),
+    data: z.array(
+      z.object({ displayName: z.string(), id: z.string() }).passthrough()
+    ),
   }),
 });
 
@@ -28,6 +30,7 @@ const modelConfiguration = {
       api: "openai-completions",
       baseUrl: "https://configured.example.invalid/v1",
       models: [{ id: "configured-model" }],
+      name: "Configured Test Provider",
     },
     [UNCONFIGURED_PROVIDER]: {
       api: "openai-completions",
@@ -84,10 +87,12 @@ const createTestConfig = async (): Promise<AppServerConfig> => {
   };
 };
 
-const requestModelIds = async (
+const requestModels = async (
   appServer: AppServer,
   clientId: string
-): Promise<string[]> => {
+): Promise<
+  readonly { readonly displayName: string; readonly id: string }[]
+> => {
   const sent: string[] = [];
   const transport: MessageTransport = {
     close: () => {},
@@ -107,7 +112,15 @@ const requestModelIds = async (
   return sent
     .map((message) => modelListResponseSchema.safeParse(JSON.parse(message)))
     .filter((result) => result.success)
-    .flatMap(({ data }) => data.result.data.map(({ id }) => id));
+    .flatMap(({ data }) => data.result.data);
+};
+
+const requestModelIds = async (
+  appServer: AppServer,
+  clientId: string
+): Promise<string[]> => {
+  const models = await requestModels(appServer, clientId);
+  return models.map(({ id }) => id);
 };
 
 describe("model/list", () => {
@@ -116,6 +129,25 @@ describe("model/list", () => {
       temporaryDirectories
         .splice(0)
         .map((directory) => rm(directory, { force: true, recursive: true }))
+    );
+  });
+
+  it("includes the provider in every model display name", async () => {
+    const appServer = await createAppServer(await createTestConfig());
+    let models: readonly {
+      readonly displayName: string;
+      readonly id: string;
+    }[];
+    try {
+      models = await requestModels(appServer, "model-display-name-test");
+    } finally {
+      appServer.close();
+    }
+    expect(models).toContainEqual(
+      expect.objectContaining({
+        displayName: "[Configured Test Provider] configured-model",
+        id: `${CONFIGURED_PROVIDER}/configured-model`,
+      })
     );
   });
 
