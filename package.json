@@ -1,6 +1,6 @@
 {
   "name": "pi-codex-app-server",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "Expose Pi Coding Agent through the Codex App Server and ChatGPT Remote protocols.",
   "keywords": [
     "app-server",
@@ -9,6 +9,15 @@
     "pi-coding-agent",
     "pi-package"
   ],
+  "homepage": "https://github.com/Lqm1/pi-codex-app-server#readme",
+  "bugs": {
+    "url": "https://github.com/Lqm1/pi-codex-app-server/issues"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lqm1/pi-codex-app-server.git"
+  },
   "bin": {
     "pi-codex-app-server": "./dist/cli.js"
   },
@@ -28,6 +37,10 @@
       "types": "./src/index.ts",
       "import": "./dist/index.js"
     }
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
     "build": "bun run ./scripts/build.ts",
@@ -72,6 +85,9 @@
     "@earendil-works/pi-ai": "*",
     "@earendil-works/pi-coding-agent": "*",
     "@earendil-works/pi-tui": "*"
+  },
+  "engines": {
+    "node": ">=22.5.0"
   },
   "pi": {
     "extensions": [

@@ -1,0 +1,70 @@
+name: Release and publish
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  release:
+    name: Create release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      sha: ${{ steps.release.outputs.sha }}
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  publish:
+    name: Publish to npm
+    if: ${{ needs.release.outputs.release_created == 'true' }}
+    needs: release
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.release.outputs.sha }}
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4.0"
+
+      - name: Update npm
+        run: npm install --global npm@11
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Verify package
+        run: |
+          bun run typecheck
+          bun run check
+          bun run test
+
+      - name: Verify release version
+        env:
+          RELEASE_VERSION: ${{ needs.release.outputs.version }}
+        run: node -e "const version = require('./package.json').version; if (version !== process.env.RELEASE_VERSION) throw new Error(`package.json has ${version}, release has ${process.env.RELEASE_VERSION}`)"
+
+      - name: Publish to npm
+        run: npm publish
