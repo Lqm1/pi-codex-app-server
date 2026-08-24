@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/Lqm1/pi-codex-app-server/compare/pi-codex-app-server-v0.1.0...pi-codex-app-server-v0.1.1) (2026-08-24)
+
+
+### Bug Fixes
+
+* install Pi runtime dependencies for daemon ([e210406](https://github.com/Lqm1/pi-codex-app-server/commit/e21040653a69bd9f8522439df8baf92a91eaca84))
+
 ## 0.1.0 (2026-08-24)
 
 ### Features
