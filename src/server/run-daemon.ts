@@ -85,7 +85,12 @@ export const runDaemon = async (config: AppServerConfig): Promise<void> => {
     const endpointUrl = daemonEndpointUrl(config.listenUrl, addressInfo.data);
     await writeFile(
       config.paths.endpoint,
-      `${JSON.stringify({ pid: process.pid, transport: "websocket", url: endpointUrl })}\n`,
+      `${JSON.stringify({
+        pid: process.pid,
+        startedAt: new Date().toISOString(),
+        transport: "websocket",
+        url: endpointUrl,
+      })}\n`,
       { mode: 0o600 }
     );
     process.stdout.write(`${endpointUrl}\n`);

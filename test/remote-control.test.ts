@@ -65,6 +65,7 @@ describe("Remote Control boundaries", () => {
     temporaryDirectories.push(directory);
     const database = new MetadataDatabase(path.join(directory, "state.sqlite"));
     const config = {
+      autoStart: true,
       hostName: "test-host",
       listenUrl: new URL("ws://127.0.0.1:0"),
       paths: {

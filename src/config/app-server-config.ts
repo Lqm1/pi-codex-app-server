@@ -7,6 +7,7 @@ import { z } from "zod";
 
 const DEFAULT_LISTEN_URL = "ws://127.0.0.1:0";
 const appServerEnvironmentSchema = z.object({
+  PI_CODEX_APP_SERVER_AUTOSTART: z.enum(["0", "1"]).optional(),
   PI_CODEX_APP_SERVER_HOME: z.string().trim().min(1).optional(),
   PI_CODEX_APP_SERVER_HOST_NAME: z.string().trim().min(1).optional(),
   PI_CODEX_APP_SERVER_LISTEN: z.string().trim().min(1).optional(),
@@ -28,6 +29,7 @@ export interface AppServerPaths {
 }
 
 export interface AppServerConfig {
+  readonly autoStart: boolean;
   readonly hostName: string;
   readonly listenUrl: URL;
   readonly paths: AppServerPaths;
@@ -47,6 +49,7 @@ export const loadConfig = (): AppServerConfig => {
   const environment = appServerEnvironmentSchema.parse(process.env);
   const home = resolveAppServerHome(environment.PI_CODEX_APP_SERVER_HOME);
   return {
+    autoStart: environment.PI_CODEX_APP_SERVER_AUTOSTART !== "0",
     hostName: environment.PI_CODEX_APP_SERVER_HOST_NAME ?? hostname(),
     listenUrl: webSocketListenUrlSchema.parse(
       environment.PI_CODEX_APP_SERVER_LISTEN ?? DEFAULT_LISTEN_URL

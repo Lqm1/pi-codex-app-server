@@ -43,10 +43,13 @@ Pi TUIでは次のコマンドを使用できます。
 ```text
 /codex-server status
 /codex-server start
+/codex-server stop
 /codex-server pair
 ```
 
-`start`はバックグラウンドdaemonを起動し、接続先を`~/.pi/agent/codex-app-server/endpoint.json`へ書き込みます。Remote Controlは既定で有効です。`pair`が表示するコードをChatGPT側で入力してください。認証トークンは画面やログへ出力しません。
+Pi TUIの起動時にバックグラウンドdaemonも自動起動し、フッターへ稼働状態を表示します。`status`ではPID、WebSocket URL、起動時刻、Remote Controlと自動起動の設定、現在のPiセッション、保存先を確認できます。`pair`はChatGPTで読み取るQRコードと手動入力コードを両方表示します。認証トークンは画面やログへ出力しません。
+
+`start`はdaemonを明示的に起動し、接続先を`~/.pi/agent/codex-app-server/endpoint.json`へ書き込みます。`stop`は共有daemonを停止します。サブコマンドはPiの引数補完候補に表示されます。
 
 CLIから直接起動する場合:
 
@@ -62,6 +65,7 @@ pi-codex-app-server pair
 
 | 変数 | 既定値 | 用途 |
 | --- | --- | --- |
+| `PI_CODEX_APP_SERVER_AUTOSTART` | `1` | `0`でPi起動時のdaemon自動起動を無効化 |
 | `PI_CODEX_APP_SERVER_HOME` | `~/.pi/agent/codex-app-server` | DB、ログ、endpointの保存先 |
 | `PI_CODEX_APP_SERVER_HOST_NAME` | OSのホスト名 | ChatGPTへ表示するサーバー名 |
 | `PI_CODEX_APP_SERVER_LISTEN` | `ws://127.0.0.1:0` | ローカルdaemonの待受URL |

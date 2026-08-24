@@ -42,6 +42,7 @@
     "ajv": "^8.17.1",
     "es-toolkit": "^1.39.10",
     "json-rpc-2.0": "^1.7.1",
+    "qrcode": "^1.5.4",
     "ws": "^8.18.3",
     "zod": "^4.4.3"
   },
@@ -50,6 +51,7 @@
     "@earendil-works/pi-coding-agent": "^0.84.2",
     "@types/bun": "^1.2.21",
     "@types/node": "^24.3.0",
+    "@types/qrcode": "^1.5.6",
     "@types/ws": "^8.18.1",
     "husky": "^9.1.7",
     "json-schema-faker": "^0.6.3",

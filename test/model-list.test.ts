@@ -71,6 +71,7 @@ const createTestConfig = async (): Promise<AppServerConfig> => {
     ),
   ]);
   return {
+    autoStart: true,
     hostName: "model-list-test",
     listenUrl: new URL("ws://127.0.0.1:0"),
     paths: {

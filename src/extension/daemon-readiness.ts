@@ -5,6 +5,7 @@ const MAX_POLL_DELAY_MS = 500;
 
 export interface DaemonEndpoint {
   readonly pid: number;
+  readonly startedAt?: string;
   readonly transport: "websocket";
   readonly url: string;
 }
