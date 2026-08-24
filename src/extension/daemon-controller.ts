@@ -12,7 +12,7 @@ import type { PairingResult } from "../remote/pairing.js";
 import type { DaemonEndpoint } from "./daemon-readiness.js";
 import { waitForDaemonEndpoint } from "./daemon-readiness.js";
 
-const DAEMON_START_TIMEOUT_MS = 10_000;
+const DAEMON_START_TIMEOUT_MS = 60_000;
 const DAEMON_STOP_TIMEOUT_MS = 5000;
 const STOP_POLL_DELAY_MS = 50;
 const endpointSchema = z.object({

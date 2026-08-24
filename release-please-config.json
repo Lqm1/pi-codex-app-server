@@ -3,8 +3,7 @@
   "packages": {
     ".": {
       "release-type": "node",
-      "package-name": "pi-codex-app-server",
-      "bump-minor-pre-major": true
+      "package-name": "pi-codex-app-server"
     }
   }
 }
