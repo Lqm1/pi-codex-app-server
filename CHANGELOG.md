@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/Lqm1/pi-codex-app-server/compare/pi-codex-app-server-v0.1.0...pi-codex-app-server-v0.1.1) (2026-08-24)
+
+
+### Bug Fixes
+
+* make npm publishing retryable ([33ae466](https://github.com/Lqm1/pi-codex-app-server/commit/33ae466d33fedd386078acd32203ff60027586d1))
+
 ## 0.1.0 (2026-08-24)
 
 ### Features
