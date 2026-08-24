@@ -19,19 +19,19 @@ const runningStatus = {
 
 const createContext = () => {
   const notify = vi.fn<CodexServerContext["notify"]>();
+  const showPairing = vi.fn<CodexServerContext["showPairing"]>();
   const setStatus = vi.fn<CodexServerContext["setStatus"]>();
-  const setWidget = vi.fn<CodexServerContext["setWidget"]>();
   return {
     context: {
       hasUi: true,
       notify,
       sessionId: "pi-session-1",
       setStatus,
-      setWidget,
+      showPairing,
     } satisfies CodexServerContext,
     notify,
     setStatus,
-    setWidget,
+    showPairing,
   };
 };
 
@@ -128,8 +128,8 @@ describe("Codex Server extension experience", () => {
     );
   });
 
-  it("shows QR and manual pairing options together", async () => {
-    const { context, setWidget } = createContext();
+  it("shows QR and manual pairing options in an overlay", async () => {
+    const { context, showPairing } = createContext();
     const renderQrCode = createQrRenderer().mockResolvedValue(
       "QR-LINE-1\nQR-LINE-2"
     );
@@ -144,12 +144,21 @@ describe("Codex Server extension experience", () => {
     await experience.handleCommand("pair", context);
 
     expect(renderQrCode).toHaveBeenCalledWith("opaque-pairing-payload");
-    expect(setWidget).toHaveBeenCalledWith("codex-server-pairing", [
-      "Scan with ChatGPT to pair:",
-      "QR-LINE-1",
-      "QR-LINE-2",
-      "Manual code: ABCD-EFGH",
-      "Expires: 2026-08-24T00:10:00.000Z",
-    ]);
+    expect(showPairing).toHaveBeenCalledWith({
+      compactLines: [
+        "Terminal is too small to display the QR code.",
+        "Manual code: ABCD-EFGH",
+        "Expires: 2026-08-24T00:10:00.000Z",
+        "Press Enter or Esc to close",
+      ],
+      fullLines: [
+        "Scan with ChatGPT to pair:",
+        "QR-LINE-1",
+        "QR-LINE-2",
+        "Manual code: ABCD-EFGH",
+        "Expires: 2026-08-24T00:10:00.000Z",
+        "Press Enter or Esc to close",
+      ],
+    });
   });
 });

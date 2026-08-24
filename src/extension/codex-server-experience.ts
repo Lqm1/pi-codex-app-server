@@ -5,7 +5,6 @@ import type { DaemonStatus } from "./daemon-controller.js";
 
 const commandSchema = z.enum(["pair", "start", "status", "stop"]);
 const STATUS_KEY = "codex-server";
-const PAIRING_WIDGET_KEY = "codex-server-pairing";
 const commandCompletions = [
   {
     description: "Pair ChatGPT using QR or manual code",
@@ -33,8 +32,13 @@ export interface CodexServerContext {
   readonly hasUi: boolean;
   readonly notify: (message: string, level: "info" | "warning") => void;
   readonly sessionId: string;
+  readonly showPairing: (presentation: PairingPresentation) => Promise<void>;
   readonly setStatus: (key: string, text: string | undefined) => void;
-  readonly setWidget: (key: string, lines: string[] | undefined) => void;
+}
+
+export interface PairingPresentation {
+  readonly compactLines: readonly string[];
+  readonly fullLines: readonly string[];
 }
 
 export interface CodexServerControl {
@@ -124,12 +128,21 @@ export const createCodexServerExperience = (options: ExperienceOptions) => {
         const manualCode = pairing.manualPairingCode ?? pairing.pairingCode;
         if (context.hasUi) {
           const qrCode = await options.renderQrCode(pairing.pairingCode);
-          context.setWidget(PAIRING_WIDGET_KEY, [
-            "Scan with ChatGPT to pair:",
-            ...qrCode.trimEnd().split("\n"),
-            `Manual code: ${manualCode}`,
-            `Expires: ${pairing.expiresAt}`,
-          ]);
+          await context.showPairing({
+            compactLines: [
+              "Terminal is too small to display the QR code.",
+              `Manual code: ${manualCode}`,
+              `Expires: ${pairing.expiresAt}`,
+              "Press Enter or Esc to close",
+            ],
+            fullLines: [
+              "Scan with ChatGPT to pair:",
+              ...qrCode.trimEnd().split("\n"),
+              `Manual code: ${manualCode}`,
+              `Expires: ${pairing.expiresAt}`,
+              "Press Enter or Esc to close",
+            ],
+          });
         } else {
           context.notify(
             `ChatGPT Remote pairing code: ${manualCode}\nExpires: ${pairing.expiresAt}`,
@@ -138,7 +151,6 @@ export const createCodexServerExperience = (options: ExperienceOptions) => {
         }
         return;
       }
-      context.setWidget(PAIRING_WIDGET_KEY, undefined);
       const status = await runStatusCommand(
         parsedCommand.data,
         options.control

@@ -2,12 +2,13 @@ import type {
   ExtensionAPI,
   ExtensionContext,
 } from "@earendil-works/pi-coding-agent";
-import QRCode from "qrcode";
 
 import { loadConfig } from "../config/app-server-config.js";
 import type { CodexServerContext } from "./codex-server-experience.js";
 import { createCodexServerExperience } from "./codex-server-experience.js";
 import { AppDaemonController } from "./daemon-controller.js";
+import { PairingOverlay } from "./pairing-overlay.js";
+import { renderPairingQrCode } from "./pairing-qr-code.js";
 
 const toCodexServerContext = (
   context: ExtensionContext
@@ -20,8 +21,26 @@ const toCodexServerContext = (
   setStatus: (key, text) => {
     context.ui.setStatus(key, text);
   },
-  setWidget: (key, lines) => {
-    context.ui.setWidget(key, lines);
+  showPairing: async ({ compactLines, fullLines }) => {
+    await context.ui.custom<null>(
+      (tui, _theme, _keybindings, done) =>
+        new PairingOverlay({
+          compactLines,
+          fullLines,
+          onClose: () => {
+            done(null);
+          },
+          terminalRows: () => tui.terminal.rows,
+        }),
+      {
+        overlay: true,
+        overlayOptions: {
+          margin: 1,
+          maxHeight: "90%",
+          width: "90%",
+        },
+      }
+    );
   },
 });
 
@@ -32,8 +51,7 @@ export default function piCodexAppServerExtension(pi: ExtensionAPI): void {
     control: new AppDaemonController(config),
     paths: config.paths,
     remoteControlEnabled: config.remoteControl.enabled,
-    renderQrCode: async (payload) =>
-      await QRCode.toString(payload, { margin: 1 }),
+    renderQrCode: renderPairingQrCode,
   });
 
   pi.registerCommand("codex-server", {
@@ -48,6 +66,5 @@ export default function piCodexAppServerExtension(pi: ExtensionAPI): void {
   });
   pi.on("session_shutdown", (_event, context) => {
     context.ui.setStatus("codex-server", undefined);
-    context.ui.setWidget("codex-server-pairing", undefined);
   });
 }
