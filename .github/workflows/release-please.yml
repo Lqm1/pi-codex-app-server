@@ -5,6 +5,11 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      version:
+        description: Existing release version to publish after a failed release job
+        required: false
+        type: string
 
 jobs:
   release:
@@ -27,7 +32,7 @@ jobs:
 
   publish:
     name: Publish to npm
-    if: ${{ needs.release.outputs.release_created == 'true' }}
+    if: ${{ needs.release.outputs.release_created == 'true' || inputs.version != '' }}
     needs: release
     runs-on: ubuntu-latest
     environment: npm
@@ -37,7 +42,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: ${{ needs.release.outputs.sha }}
+          ref: ${{ needs.release.outputs.sha || format('v{0}', inputs.version) }}
 
       - uses: actions/setup-node@v6
         with:
@@ -55,6 +60,9 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Normalize generated release files
+        run: bun x ultracite fix package.json .release-please-manifest.json CHANGELOG.md --no-error-on-unmatched-pattern
+
       - name: Verify package
         run: |
           bun run typecheck
@@ -63,7 +71,7 @@ jobs:
 
       - name: Verify release version
         env:
-          RELEASE_VERSION: ${{ needs.release.outputs.version }}
+          RELEASE_VERSION: ${{ needs.release.outputs.version || inputs.version }}
         run: node -e "const version = require('./package.json').version; if (version !== process.env.RELEASE_VERSION) throw new Error(`package.json has ${version}, release has ${process.env.RELEASE_VERSION}`)"
 
       - name: Publish to npm

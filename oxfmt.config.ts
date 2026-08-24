@@ -6,6 +6,7 @@ export default defineConfig({
   ignorePatterns: [
     ...(ultracite.ignorePatterns ?? []),
     ".agents/**",
+    "CHANGELOG.md",
     "vendor/**",
   ],
 });
