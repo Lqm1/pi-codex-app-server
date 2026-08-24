@@ -40,6 +40,26 @@ describe(MetadataDatabase, () => {
       threadId: "thread-1",
       updatedAt: 120,
     });
+    expect(database.listThreads()).toHaveLength(1);
+
+    database.close();
+  });
+
+  test("archives and deletes thread metadata", () => {
+    const database = new MetadataDatabase(":memory:");
+    database.upsertThread({
+      archived: false,
+      projectId: null,
+      sessionFile: "/sessions/thread-1.jsonl",
+      threadId: "thread-1",
+      updatedAt: 120,
+    });
+
+    expect(database.setThreadArchived("thread-1", true)).toBeTruthy();
+    expect(database.getThread("thread-1")?.archived).toBeTruthy();
+    expect(database.setThreadArchived("missing-thread", true)).toBeFalsy();
+    database.deleteThread("thread-1");
+    expect(database.getThread("thread-1")).toBeUndefined();
 
     database.close();
   });
@@ -95,6 +115,23 @@ describe(MetadataDatabase, () => {
         threadId: "thread-1",
       })?.expiresAtMs
     ).toBe(2500);
+    database.close();
+  });
+
+  test("allows only the lease owner to release a lease", () => {
+    const database = new MetadataDatabase(":memory:");
+    const lease = database.acquireLease({
+      nowMs: 1000,
+      ownerId: "daemon-1",
+      ownerKind: "daemon",
+      threadId: "thread-1",
+      ttlMs: 500,
+    });
+
+    expect(lease?.ownerId).toBe("daemon-1");
+    expect(database.releaseLease("thread-1", "tui-1")).toBeFalsy();
+    expect(database.releaseLease("thread-1", "daemon-1")).toBeTruthy();
+    expect(database.releaseLease("thread-1", "daemon-1")).toBeFalsy();
 
     database.close();
   });

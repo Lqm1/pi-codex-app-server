@@ -172,6 +172,7 @@ bun run typecheck   # tsc --noEmit
 bun run check       # ultracite (oxlint + oxfmt)
 bun run fix         # autofix
 bun run build       # bun build into dist/
+bun run db:generate # generate a reviewed Drizzle migration after schema changes
 ```
 
 A pre-commit hook runs `ultracite fix` over staged files, so formatting arguments never reach review.
@@ -189,6 +190,7 @@ src/
   storage/               SQLite metadata sidecar
   extension/             Pi extension: /codex-server command and daemon control
 scripts/                 Build and codegen
+drizzle/                 Generated SQLite migrations
 vendor/                  Official Codex protocol schemas and generated types
 docs/adr/                Why things are the way they are
 ```

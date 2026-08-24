@@ -30,6 +30,7 @@
   "include": [
     "src/**/*.ts",
     "test/**/*.ts",
+    "drizzle.config.ts",
     "oxlint.config.ts",
     "oxfmt.config.ts"
   ],
