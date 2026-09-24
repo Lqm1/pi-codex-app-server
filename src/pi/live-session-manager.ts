@@ -78,7 +78,7 @@ interface ActiveTurn {
     number,
     Extract<ThreadItem, { type: "agentMessage" }>
   >;
-  readonly connection: JsonRpcConnection;
+  connection: JsonRpcConnection;
   readonly reasoningItems: Map<
     number,
     Extract<ThreadItem, { type: "reasoning" }>
@@ -426,6 +426,13 @@ export class PiLiveSessionManager {
       params.input
     );
     return turn;
+  }
+
+  rebindConnection(threadId: string, connection: JsonRpcConnection): void {
+    const active = this.#loaded.get(threadId)?.active;
+    if (active) {
+      active.connection = connection;
+    }
   }
 
   async interrupt(threadId: string, turnId: string): Promise<void> {

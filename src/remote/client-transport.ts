@@ -12,6 +12,10 @@ export class RemoteClientTransport implements MessageTransport {
     this.#sender = sender;
   }
 
+  get closed(): boolean {
+    return this.#closed;
+  }
+
   close(): void {
     if (this.#closed) {
       return;

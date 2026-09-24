@@ -166,6 +166,7 @@ export class AppServer {
       if (!(sessionManager && thread)) {
         throw new Error(`Thread not found: ${params.threadId}`);
       }
+      this.#liveSessionManager.rebindConnection(params.threadId, connection);
       const sessionContext = sessionManager.buildSessionContext();
       const provider = sessionContext.model?.provider ?? "pi";
       const modelId = sessionContext.model?.modelId ?? "unknown";
