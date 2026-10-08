@@ -258,6 +258,14 @@ export const projectPiConversation = (
   const turns: Turn[] = [];
   let state: MutableTurnState | undefined;
   for (const entry of entries) {
+    if (entry.type === "message") {
+      // Historical sessions can contain system messages absent from Pi's types.
+      // Ignore them before creating a turn or updating its timing.
+      const role: string = entry.message.role;
+      if (role === "system") {
+        continue;
+      }
+    }
     const renderableEntry =
       entry.type === "message" ||
       entry.type === "compaction" ||
