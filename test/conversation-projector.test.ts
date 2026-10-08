@@ -12,7 +12,77 @@ const usage = {
   totalTokens: 15,
 };
 
+const historicalMessage = (role: string): SessionEntry =>
+  // SAFETY: The entry has the persisted message shape; its deliberately untyped
+  // role exercises historical JSONL values absent from the current Pi types.
+  ({
+    id: `${role}-1`,
+    message: { content: "Internal instructions", role, timestamp: 0 },
+    parentId: null,
+    timestamp: "2026-01-01T00:00:10.000Z",
+    type: "message",
+  }) as SessionEntry;
+
+const ordinaryEntries = [
+  {
+    id: "user-1",
+    message: { content: "Hello", role: "user", timestamp: 1000 },
+    parentId: null,
+    timestamp: "2026-01-01T00:00:01.000Z",
+    type: "message",
+  },
+  {
+    id: "assistant-1",
+    message: {
+      api: "openai-responses",
+      content: [{ text: "Hi", type: "text" }],
+      model: "gpt-test",
+      provider: "openai",
+      role: "assistant",
+      stopReason: "stop",
+      timestamp: 2000,
+      usage,
+    },
+    parentId: "user-1",
+    timestamp: "2026-01-01T00:00:02.000Z",
+    type: "message",
+  },
+  {
+    id: "user-2",
+    message: { content: "Continue", role: "user", timestamp: 3000 },
+    parentId: "assistant-1",
+    timestamp: "2026-01-01T00:00:03.000Z",
+    type: "message",
+  },
+] satisfies SessionEntry[];
+
 describe("Pi conversation projection", () => {
+  test.each([0, 1, 2, 3])(
+    "ignores a system message at index %i without changing turns or timing",
+    (index) => {
+      const entries: SessionEntry[] = [...ordinaryEntries];
+      entries.splice(index, 0, historicalMessage("system"));
+      const original = structuredClone(entries);
+
+      expect(projectPiConversation(entries, "/workspace")).toStrictEqual(
+        projectPiConversation(ordinaryEntries, "/workspace")
+      );
+      expect(entries).toStrictEqual(original);
+    }
+  );
+
+  test("does not create a turn for system-only history", () => {
+    expect(
+      projectPiConversation([historicalMessage("system")], "/workspace")
+    ).toStrictEqual([]);
+  });
+
+  test("still rejects unknown message roles", () => {
+    expect(() =>
+      projectPiConversation([historicalMessage("unknown")], "/workspace")
+    ).toThrow("Unsupported Pi message");
+  });
+
   test("groups messages into turns and joins tool calls with their results", () => {
     const entries = [
       {
